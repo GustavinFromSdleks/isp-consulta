@@ -1,11 +1,10 @@
-// src/components/AddressCard.jsx
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
 import Box from "@mui/material/Box";
 
-// Recebe a prop "endereco" com os dados retornados pela ViaCEP.
+// Recebo a prop "endereco" com os dados retornados pela ViaCEP
 // Estrutura do objeto que a ViaCEP retorna:
 // {
 //   cep, logradouro, complemento, bairro,

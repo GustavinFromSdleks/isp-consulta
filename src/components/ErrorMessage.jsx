@@ -1,4 +1,3 @@
-// src/components/ErrorMessage.jsx
 import Alert from "@mui/material/Alert";
  
 // Componente simples de exibição de erro.

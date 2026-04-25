@@ -1,4 +1,3 @@
-// src/components/SearchForm.jsx
 import { useReducer } from "react";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
@@ -6,10 +5,9 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
 import ErrorMessage from "./ErrorMessage";
  
-// ─────────────────────────────────────────────
-// 1. ESTADO INICIAL
-// Tudo que o formulário precisa saber está aqui.
-// ─────────────────────────────────────────────
+
+// Tudo que o formulário precisa saber está aqui
+
 const estadoInicial = {
   status: "idle",    // idle | loading | success | error
   cep: "",           // valor digitado no campo
@@ -18,9 +16,8 @@ const estadoInicial = {
 };
  
 // ─────────────────────────────────────────────
-// 2. REDUCER
-// Recebe o estado atual + uma action, e retorna o novo estado.
-// Cada "case" representa uma coisa que pode acontecer.
+// Recebe o estado atual + uma action, e retorna o novo estado
+// Cada "case" representa uma coisa que pode acontecer
 // ─────────────────────────────────────────────
 function reducer(state, action) {
   switch (action.type) {
@@ -46,7 +43,7 @@ function reducer(state, action) {
 }
  
 // ─────────────────────────────────────────────
-// 3. COMPONENTE
+// COMPONENTE ABAIXO
 // ─────────────────────────────────────────────
 function SearchForm({ onEnderecoEncontrado }) {
   // useReducer retorna: [estado atual, função dispatch]
@@ -91,7 +88,6 @@ function SearchForm({ onEnderecoEncontrado }) {
       dispatch({ type: "BUSCA_OK", payload: dados });
  
       // Avisa o componente pai (App.jsx) que encontrou um endereço.
-      // No dia 4 você vai usar isso para atualizar o PlansContext com a cidade.
       if (onEnderecoEncontrado) {
         onEnderecoEncontrado(dados);
       }
