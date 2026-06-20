@@ -1,104 +1,95 @@
+// src/components/SearchForm.jsx
 import { useReducer } from "react";
 import TextField from "@mui/material/TextField";
 import Button from "@mui/material/Button";
 import CircularProgress from "@mui/material/CircularProgress";
 import Box from "@mui/material/Box";
 import ErrorMessage from "./ErrorMessage";
- 
-
-// Tudo que o formulário precisa saber está aqui
 
 const estadoInicial = {
-  status: "idle",    // idle | loading | success | error
-  cep: "",           // valor digitado no campo
-  endereco: null,    // dados retornados pela ViaCEP
-  erro: "",          // mensagem de erro a exibir
+  status: "idle",
+  cep: "",
+  endereco: null,
+  erro: "",
 };
- 
-// ─────────────────────────────────────────────
-// Recebe o estado atual + uma action, e retorna o novo estado
-// Cada "case" representa uma coisa que pode acontecer
-// ─────────────────────────────────────────────
+
 function reducer(state, action) {
   switch (action.type) {
     case "DIGITAR_CEP":
-      // Usuário está digitando — só atualiza o campo, limpa erros
       return { ...state, cep: action.payload, erro: "", status: "idle" };
- 
     case "INICIAR_BUSCA":
-      // Clicou em consultar e o CEP é válido — ativa o loading
       return { ...state, status: "loading", erro: "", endereco: null };
- 
     case "BUSCA_OK":
-      // ViaCEP respondeu com sucesso
       return { ...state, status: "success", endereco: action.payload };
- 
     case "BUSCA_ERRO":
-      // Algo deu errado — validação ou resposta da API
       return { ...state, status: "error", erro: action.payload, endereco: null };
- 
     default:
       return state;
   }
 }
- 
-// ─────────────────────────────────────────────
-// COMPONENTE ABAIXO
-// ─────────────────────────────────────────────
+
 function SearchForm({ onEnderecoEncontrado }) {
-  // useReducer retorna: [estado atual, função dispatch]
-  // dispatch(action) → chama o reducer → atualiza o estado → React re-renderiza
   const [state, dispatch] = useReducer(reducer, estadoInicial);
- 
-  // ── Validação e busca ──────────────────────
+
   async function handleConsultar() {
-    const cepLimpo = state.cep.replace(/\D/g, ""); // remove tudo que não for número
- 
-    // VALIDAÇÃO ANTES DO ENVIO (critério do projeto)
+    const cepLimpo = state.cep.replace(/\D/g, "");
+
     if (cepLimpo.length === 0) {
       dispatch({ type: "BUSCA_ERRO", payload: "Digite um CEP para consultar." });
+      if (onEnderecoEncontrado) onEnderecoEncontrado(null);
       return;
     }
     if (cepLimpo.length !== 8) {
       dispatch({ type: "BUSCA_ERRO", payload: "CEP inválido. Digite os 8 dígitos completos." });
+      if (onEnderecoEncontrado) onEnderecoEncontrado(null);
       return;
     }
- 
-    // Passou na validação — inicia a busca
+
     dispatch({ type: "INICIAR_BUSCA" });
- 
+
     try {
-      const resposta = await fetch(`https://viacep.com.br/ws/${cepLimpo}/json/`);
- 
-      // VALIDAÇÃO DEPOIS DO ENVIO (critério do projeto)
-      if (!resposta.ok) {
-        dispatch({ type: "BUSCA_ERRO", payload: "Não foi possível conectar ao serviço de CEP. Tente novamente." });
+      const tokenSessao = sessionStorage.getItem("isp_token");
+
+      if (!tokenSessao) {
+        dispatch({ type: "BUSCA_ERRO", payload: "Sessão inválida. Faça login novamente." });
+        if (onEnderecoEncontrado) onEnderecoEncontrado(null);
         return;
       }
- 
+
+      const resposta = await fetch(
+        `http://localhost:3001/api/busca?cep=${cepLimpo}`,
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${tokenSessao}`,
+          },
+        }
+      );
+
       const dados = await resposta.json();
- 
-      // ViaCEP retorna { erro: true } quando o CEP não existe
-      if (dados.erro) {
-        dispatch({ type: "BUSCA_ERRO", payload: "CEP não encontrado. Verifique e tente novamente." });
+
+      if (!resposta.ok) {
+        dispatch({ type: "BUSCA_ERRO", payload: dados.erro || "Erro ao consultar CEP." });
+        if (onEnderecoEncontrado) onEnderecoEncontrado(null);
         return;
       }
- 
-      // Tudo certo — atualiza o estado com os dados do endereço
-      dispatch({ type: "BUSCA_OK", payload: dados });
- 
-      // Avisa o componente pai (App.jsx) que encontrou um endereço.
+
+      sessionStorage.setItem("isp_ultimo_cep", cepLimpo);
+
+      // CORREÇÃO: Mesmo se não houver planos, mandamos o endereço para a tela exibir os dados cadastrais
+      dispatch({ type: "BUSCA_OK", payload: dados.endereco });
+
       if (onEnderecoEncontrado) {
         onEnderecoEncontrado(dados);
       }
- 
-    } catch (erro) {
-      // Erro de rede — sem internet, timeout, etc.
-      dispatch({ type: "BUSCA_ERRO", payload: "Erro de conexão. Verifique sua internet e tente novamente." });
+
+    } catch (err) {
+      dispatch({ type: "BUSCA_ERRO", payload: "Não foi possível conectar ao servidor backend na porta 3001." });
+      if (onEnderecoEncontrado) onEnderecoEncontrado(null);
     }
   }
- 
-  // ── Renderização ───────────────────────────
+
   return (
     <Box>
       <Box sx={{ display: "flex", gap: 2, alignItems: "flex-start" }}>
@@ -113,7 +104,6 @@ function SearchForm({ onEnderecoEncontrado }) {
           disabled={state.status === "loading"}
           sx={{ flex: 1 }}
         />
- 
         <Button
           variant="contained"
           onClick={handleConsultar}
@@ -127,11 +117,9 @@ function SearchForm({ onEnderecoEncontrado }) {
           )}
         </Button>
       </Box>
- 
-      {/* Exibe erro se houver — componente que você criou acima */}
       <ErrorMessage message={state.erro} />
     </Box>
   );
 }
- 
+
 export default SearchForm;
