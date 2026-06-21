@@ -6,7 +6,7 @@ const PlanoModel = require("../models/plano.model");
 
 const router = express.Router();
 
-// REQUISITO DO EDITAL: O 'authMiddleware' garante que apenas usuários logados acessem a busca
+
 router.get("/busca", authMiddleware, async (req, res) => {
   const { cep } = req.query;
 
@@ -23,8 +23,7 @@ router.get("/busca", authMiddleware, async (req, res) => {
   }
 
   try {
-    // Sintaxe com "+" para o Windows nao quebrar o link de jeito nenhum
-    // Garantindo as barras de forma explícita para o sistema não juntar o texto
+    
     const url = "https://viacep.com.br" + "/ws/" + cepLimpo + "/json/";
     const response = await axios.get(url);
 

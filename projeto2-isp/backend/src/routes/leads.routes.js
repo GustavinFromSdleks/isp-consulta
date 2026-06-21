@@ -22,7 +22,7 @@ router.post(
     const cepLimpo = cep.replace(/\D/g, '');
 
     try {
-      // Usando Axios e link blindado contra quebras do Windows
+      
       const url = "https://viacep.com.br" + "/ws/" + cepLimpo + "/json/";
       const response = await axios.get(url);
       const dadosCep = response.data;

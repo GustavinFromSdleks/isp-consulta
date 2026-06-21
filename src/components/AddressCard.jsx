@@ -13,16 +13,16 @@ import Box from "@mui/material/Box";
 function AddressCard({ endereco }) {
   if (!endereco) return null;
 
-  // Monta uma linha só se o valor existir — evita linhas em branco
+  // Monta uma linha só se o valor existir (obs tb evita linhas em branco)
 function Linha({ rotulo, valor }) {
   if (!valor) return null;
   return (
     <Box sx={{ 
       display: "flex", 
       justifyContent: "space-between", 
-      py: 1, // Aumentei um pouco o espaçamento
-      borderBottom: "1px dashed #e0e0e0", // Uma linha pontilhada entre itens
-      '&:last-child': { borderBottom: 'none' } // Remove a linha no último item
+      py: 1, 
+      borderBottom: "1px dashed #e0e0e0", 
+      '&:last-child': { borderBottom: 'none' } 
     }}>
       <Typography variant="body2" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
         {rotulo}

@@ -30,8 +30,7 @@ router.post('/login', async (req, res) => {
 });
 
 router.post('/logout', (req, res) => {
-  // Em JWT o logout geralmente é feito invalidando o token no cliente, 
-  // aqui apenas retornamos uma resposta de sucesso padrão.
+  
   return res.json({ mensagem: 'Logout efetuado com sucesso (remova o token do cliente)' });
 });
 

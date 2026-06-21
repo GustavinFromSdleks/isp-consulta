@@ -10,14 +10,14 @@ import { useAuth } from "../contexts/AuthContext";
 const estadoInicial = {
   email: "",
   senha: "",
-  status: "idle",   // idle | loading | error
+  status: "idle",   
   erro: "",
 };
 
 function reducer(state, action) {
   switch (action.type) {
     case "CAMPO":
-      // Atualiza email ou senha dinamicamente 
+       
       return { ...state, [action.campo]: action.valor, erro: "", status: "idle" };
     case "LOADING":
       return { ...state, status: "loading", erro: "" };
@@ -33,7 +33,7 @@ function LoginForm() {
   const { login } = useAuth();
 
   async function handleLogin() {
-    // Validação local
+    
     if (!state.email) {
       dispatch({ type: "ERRO", payload: "Informe o e-mail." });
       return;
@@ -46,12 +46,12 @@ function LoginForm() {
     dispatch({ type: "LOADING" });
 
     try {
-      // Chama a função login do AuthContext que faz a requisição correta para o backend
+      
       await login(state.email, state.senha);
       
-      // O AuthContext salva o token e o App.jsx mudará a tela automaticamente.
+      
     } catch (error) {
-      // Exibe o erro exato retornado pelo backend (ex: erro de senha, rate limit, etc.)
+      
       dispatch({ 
         type: "ERRO", 
         payload: error.message || "Não foi possível conectar ao servidor." 
@@ -99,7 +99,7 @@ function LoginForm() {
           dispatch({ type: "CAMPO", campo: "senha", valor: e.target.value })
         }
         disabled={state.status === "loading"}
-        // Permite fazer login apertando Enter no teclado
+        
         onKeyDown={(e) => e.key === "Enter" && handleLogin()}
         sx={{ mb: 2 }}
       />
